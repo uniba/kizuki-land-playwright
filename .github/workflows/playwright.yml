@@ -67,7 +67,7 @@ jobs:
         run: |
           npm install -g vercel
           # deploy the report folder and capture the URL
-          DEPLOY_OUTPUT=$(vercel --prod --token $VERCEL_TOKEN --confirm ./playwright-report)
+          DEPLOY_OUTPUT=$(vercel --prod --token $VERCEL_TOKEN --confirm --name "kizuki-land-playwright-report" ./playwright-report)
           # extract the deployed URL from output
           URL=$(echo "$DEPLOY_OUTPUT" | grep -oE 'https://[a-zA-Z0-9.-]+')
           echo "vercel_url=$URL" >> $GITHUB_OUTPUT
