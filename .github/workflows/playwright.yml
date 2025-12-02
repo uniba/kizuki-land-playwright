@@ -27,7 +27,20 @@ jobs:
 
       - name: Run Playwright tests
         run: npx playwright test
-      
+
+      - name: Deploy Playwright report to Vercel
+        id: vercel
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          npm install -g vercel
+          # deploy the report folder and capture the URL
+          DEPLOY_OUTPUT=$(vercel --prod --token $VERCEL_TOKEN --confirm ./playwright-report)
+          # extract the deployed URL from output
+          URL=$(echo "$DEPLOY_OUTPUT" | grep -oE 'https://[a-zA-Z0-9.-]+')
+          echo "VERCEL_URL=$URL" >> $GITHUB_ENV
+          echo "Deployed Playwright report to $URL"
+
       - name: Upload test artifacts
         if: always()
         uses: actions/upload-artifact@v4
@@ -50,6 +63,7 @@ jobs:
         run: |
           STATUS="${{ needs.test.result }}"
           RUN_URL="https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          REPORT_URL="${{ env.VERCEL_URL }}"
 
           if [ "$STATUS" = "success" ]; then
             EMOJI="🟢"
@@ -61,7 +75,6 @@ jobs:
 
           curl -X POST -H 'Content-type: application/json' \
           --data "{
-            \"text\": \"${EMOJI}  *Playwright Test Run Result*\n\n${MESSAGE}\n\n📦 *Repo:* ${GITHUB_REPOSITORY}\n🔗 *Run:* ${RUN_URL}\n⏰ Trigger: Hourly Schedule\"
+            \"text\": \"${EMOJI}  *Playwright Test Run Result*\n\n${MESSAGE}\n\n📦 *Repo:* ${GITHUB_REPOSITORY}\n🔗 *Run:* ${RUN_URL}\n🔗 *Report:* ${REPORT_URL}\n⏰ Trigger: Hourly Schedule\"
           }" \
           ${{ secrets.SLACK_WEBHOOK_URL }}
-
