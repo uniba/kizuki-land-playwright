@@ -65,6 +65,7 @@ jobs:
       - name: Send result to Slack
         run: |
           STATUS="${{ needs.test.result }}"
+          REPO_URL="https://github.com/${GITHUB_REPOSITORY}"
           RUN_URL="https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
           REPORT_URL="${{ needs.test.outputs.vercel_url }}"
 
@@ -78,6 +79,6 @@ jobs:
 
           curl -X POST -H 'Content-type: application/json' \
           --data "{
-            \"text\": \"${EMOJI}  *Playwright Test Run Result*\n\n${MESSAGE}\n\n📦 *Repo:* ${GITHUB_REPOSITORY}\n🔗 *Run:* ${RUN_URL}\n🔗 *Report:* ${REPORT_URL}\"
+            \"text\": \"${EMOJI}  *Playwright Test Run Result*\n\n${MESSAGE}\n\n📦 *Repo:* ${REPO_URL}\n🔗 *Run:* ${RUN_URL}\n🔗 *Report:* ${REPORT_URL}\"
           }" \
           ${{ secrets.SLACK_WEBHOOK_URL }}
