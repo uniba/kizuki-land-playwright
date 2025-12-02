@@ -29,5 +29,5 @@ jobs:
         run: npx playwright test
 
     env:
-      USER_EMAIL: ${{ secrets.KIZUKI_EMAIL }}
-      USER_PASSWORD: ${{ secrets.KIZUKI_PASSWORD }}
+      KIZUKI_EMAIL: ${{ secrets.KIZUKI_EMAIL }}
+      KIZUKI_PASSWORD: ${{ secrets.KIZUKI_PASSWORD }}
