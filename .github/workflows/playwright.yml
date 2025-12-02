@@ -33,14 +33,14 @@ jobs:
       KIZUKI_PASSWORD: ${{ secrets.KIZUKI_PASSWORD }}
 
     notify:
-    needs: test
-    runs-on: ubuntu-latest
-    if: always()   # runs even if tests fail
+      needs: test
+      runs-on: macos-latest
+      if: always()   # runs even if tests fail
 
-    steps:
-      - name: Send result to Slack
-        run: |
-          STATUS="${{ needs.test.result }}"
-          curl -X POST -H 'Content-type: application/json' \
-          --data "{\"text\":\"Playwright tests finished with *$STATUS*\nRepo: $GITHUB_REPOSITORY\nRun: $GITHUB_RUN_URL\"}" \
-          ${{ secrets.SLACK_WEBHOOK_URL }}
+      steps:
+        - name: Send result to Slack
+          run: |
+            STATUS="${{ needs.test.result }}"
+            curl -X POST -H 'Content-type: application/json' \
+            --data "{\"text\":\"Playwright tests finished with *$STATUS*\nRepo: $GITHUB_REPOSITORY\nRun: $GITHUB_RUN_URL\"}" \
+            ${{ secrets.SLACK_WEBHOOK_URL }}
