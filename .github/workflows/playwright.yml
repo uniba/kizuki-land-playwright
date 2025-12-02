@@ -2,7 +2,7 @@ name: Playwright Live Site Tests
 
 on:
   schedule:
-    - cron: "0 * * * *"   # every hour on the hour
+    - cron: "0 16 * * *"   # runs every day at 16:00 UTC = 1:00 AM JST
   workflow_dispatch:       # allow manual run
   push:
     branches: [ main ]
@@ -78,6 +78,6 @@ jobs:
 
           curl -X POST -H 'Content-type: application/json' \
           --data "{
-            \"text\": \"${EMOJI}  *Playwright Test Run Result*\n\n${MESSAGE}\n\n📦 *Repo:* ${GITHUB_REPOSITORY}\n🔗 *Run:* ${RUN_URL}\n🔗 *Report:* ${REPORT_URL}\n⏰ Trigger: Hourly Schedule\"
+            \"text\": \"${EMOJI}  *Playwright Test Run Result*\n\n${MESSAGE}\n\n📦 *Repo:* ${GITHUB_REPOSITORY}\n🔗 *Run:* ${RUN_URL}\n🔗 *Report:* ${REPORT_URL}\"
           }" \
           ${{ secrets.SLACK_WEBHOOK_URL }}
