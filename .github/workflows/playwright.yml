@@ -34,13 +34,26 @@ jobs:
 
   notify:
     needs: test
-    runs-on: macos-latest
-    if: always()   # runs even if tests fail
+    runs-on: ubuntu-latest
+    if: always()
 
     steps:
       - name: Send result to Slack
         run: |
           STATUS="${{ needs.test.result }}"
+          RUN_URL="https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+
+          if [ "$STATUS" = "success" ]; then
+            EMOJI="🟢"
+            MESSAGE="*All Playwright tests passed!* 🎉"
+          else
+            EMOJI="🔴"
+            MESSAGE="*Some Playwright tests failed!* 💥"
+          fi
+
           curl -X POST -H 'Content-type: application/json' \
-          --data "{\"text\":\"Playwright tests finished with *$STATUS*\nRepo: $GITHUB_REPOSITORY\nRun: $GITHUB_RUN_URL\"}" \
+          --data "{
+            \"text\": \"${EMOJI}  *Playwright Test Run Result*\n\n${MESSAGE}\n\n📦 *Repo:* ${GITHUB_REPOSITORY}\n🔗 *Run:* ${RUN_URL}\n⏰ Trigger: Hourly Schedule\"
+          }" \
           ${{ secrets.SLACK_WEBHOOK_URL }}
+
