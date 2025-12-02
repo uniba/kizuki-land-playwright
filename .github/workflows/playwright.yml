@@ -10,10 +10,6 @@ on:
 jobs:
   test:
     runs-on: macos-latest
-
-    outputs:
-      vercel_url: ${{ steps.vercel.outputs.vercel_url }}
-      
     steps:
       - uses: actions/checkout@v4
 
@@ -31,6 +27,39 @@ jobs:
       - name: Run Playwright tests
         run: npx playwright test
 
+      # Upload the generated Playwright report as an artifact so downstream
+      # jobs can download and act on it (deployment / long-term storage).
+      - name: Upload test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
+
+    env:
+      KIZUKI_EMAIL: ${{ secrets.KIZUKI_EMAIL }}
+      KIZUKI_PASSWORD: ${{ secrets.KIZUKI_PASSWORD }}
+
+  deploy:
+    needs: test
+    runs-on: macos-latest
+
+    outputs:
+      vercel_url: ${{ steps.vercel.outputs.vercel_url }}
+
+    steps:
+      - name: Download Playwright report artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: playwright-report
+          path: ./playwright-report
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
       - name: Deploy Playwright report to Vercel
         id: vercel
         env:
@@ -44,21 +73,9 @@ jobs:
           echo "vercel_url=$URL" >> $GITHUB_OUTPUT
           echo "Deployed Playwright report to $URL"
 
-      - name: Upload test artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-report
-          path: playwright-report/
-          retention-days: 7
-
-    env:
-      KIZUKI_EMAIL: ${{ secrets.KIZUKI_EMAIL }}
-      KIZUKI_PASSWORD: ${{ secrets.KIZUKI_PASSWORD }}
-
   notify:
-    needs: test
-    runs-on: ubuntu-latest
+    needs: [test, deploy]
+    runs-on: macos-latest
     if: always()
 
     steps:
@@ -67,7 +84,7 @@ jobs:
           STATUS="${{ needs.test.result }}"
           REPO_URL="https://github.com/${GITHUB_REPOSITORY}"
           RUN_URL="https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
-          REPORT_URL="${{ needs.test.outputs.vercel_url }}"
+          REPORT_URL="${{ needs.deploy.outputs.vercel_url }}"
 
           if [ "$STATUS" = "success" ]; then
             EMOJI="🟢"
