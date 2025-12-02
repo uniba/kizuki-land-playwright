@@ -23,7 +23,7 @@
 Scheduled to run at 01:00 A.M JST
 
 ### Jobs
-1. test (runs PlayWright script)
+1. test (runs Playwright script)
 2. deploy (uploads test report to Vercel)
 3. notify (sends test result notifaction in Slack)
 
