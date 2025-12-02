@@ -11,6 +11,9 @@ jobs:
   test:
     runs-on: macos-latest
 
+    outputs:
+      vercel_url: ${{ steps.vercel.outputs.vercel_url }}
+      
     steps:
       - uses: actions/checkout@v4
 
@@ -38,7 +41,7 @@ jobs:
           DEPLOY_OUTPUT=$(vercel --prod --token $VERCEL_TOKEN --confirm ./playwright-report)
           # extract the deployed URL from output
           URL=$(echo "$DEPLOY_OUTPUT" | grep -oE 'https://[a-zA-Z0-9.-]+')
-          echo "VERCEL_URL=$URL" >> $GITHUB_ENV
+          echo "vercel_url=$URL" >> $GITHUB_OUTPUT
           echo "Deployed Playwright report to $URL"
 
       - name: Upload test artifacts
@@ -63,7 +66,7 @@ jobs:
         run: |
           STATUS="${{ needs.test.result }}"
           RUN_URL="https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
-          REPORT_URL="${{ env.VERCEL_URL }}"
+          REPORT_URL="${{ needs.test.outputs.vercel_url }}"
 
           if [ "$STATUS" = "success" ]; then
             EMOJI="🟢"
