@@ -25,7 +25,25 @@ jobs:
         run: npx playwright install --with-deps
 
       - name: Run Playwright tests
-        run: npx playwright test
+        run: |
+          npx playwright test 2>&1 | tee playwright-output.log
+        continue-on-error: true
+
+      - name: Upload Playwright logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-logs
+          path: playwright-output.log
+          retention-days: 7
+      
+      - name: Upload Playwright logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-logs
+          path: playwright-output.log
+          retention-days: 7
 
       # Upload the generated Playwright report as an artifact so downstream
       # jobs can download and act on it (deployment / long-term storage).
@@ -79,23 +97,32 @@ jobs:
     if: always()
 
     steps:
-      - name: Send result to Slack
-        run: |
-          STATUS="${{ needs.test.result }}"
-          REPO_URL="https://github.com/${GITHUB_REPOSITORY}"
-          RUN_URL="https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
-          REPORT_URL="${{ needs.deploy.outputs.vercel_url }}"
+    - name: Send result to Slack
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      run: |
+        STATUS="${{ needs.test.result }}"
+        REPO_URL="https://github.com/${GITHUB_REPOSITORY}"
+        RUN_URL="https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+        REPORT_URL="${{ needs.deploy.outputs.vercel_url }}"
 
-          if [ "$STATUS" = "success" ]; then
-            EMOJI="🟢"
-            MESSAGE="*All Playwright tests passed!* 🎉"
-          else
-            EMOJI="🔴"
-            MESSAGE="*Some Playwright tests failed!* 💥"
-          fi
+        ERROR_SNIPPET=""
 
-          curl -X POST -H 'Content-type: application/json' \
+        if [ "$STATUS" != "success" ] && [ -f playwright-output.log ]; then
+          ERROR_SNIPPET=$(grep -E "✘|Error|failed|Timeout" playwright-output.log | head -n 6 | sed 's/"/'\''/g')
+        fi
+
+        if [ "$STATUS" = "success" ]; then
+          EMOJI="🟢"
+          MESSAGE="*All Playwright tests passed!* 🎉"
+        else
+          EMOJI="🔴"
+          MESSAGE="*Some Playwright tests failed!* 💥\n\n\`\`\`\n${ERROR_SNIPPET}\n\`\`\`"
+        fi
+
+        curl -X POST -H 'Content-type: application/json' \
           --data "{
-            \"text\": \"${EMOJI}  *Playwright Test Run Result*\n\n${MESSAGE}\n\n📦 *Repo:* ${REPO_URL}\n🔗 *Run:* ${RUN_URL}\n🔗 *Report:* ${REPORT_URL}\"
+            \"text\": \"${EMOJI} *Playwright Test Run Result*\n\n${MESSAGE}\n\n📦 *Repo:* ${REPO_URL}\n🔗 *Run:* ${RUN_URL}\n🔗 *Report:* ${REPORT_URL}\"
           }" \
-          ${{ secrets.SLACK_WEBHOOK_URL }}
+          "$SLACK_WEBHOOK_URL"
+
