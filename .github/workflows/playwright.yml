@@ -55,6 +55,7 @@ jobs:
   deploy:
     needs: test
     runs-on: macos-latest
+    if: always()
 
     outputs:
       vercel_url: ${{ steps.vercel.outputs.vercel_url }}
