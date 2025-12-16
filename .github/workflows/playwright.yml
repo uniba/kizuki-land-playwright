@@ -118,7 +118,7 @@ jobs:
           MESSAGE="*All Playwright tests passed!* 🎉"
         else
           EMOJI="🔴"
-          MESSAGE="*Some Playwright tests failed!* 💥\n\n\`\`\`\n${ERROR_SNIPPET}\n\`\`\`"
+          MESSAGE="*Some Playwright tests failed!* 💥\\\`\`\`\${ERROR_SNIPPET}\\`\`\`"
         fi
 
         PAYLOAD=$(jq -n \
