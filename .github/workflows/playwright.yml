@@ -109,13 +109,14 @@ jobs:
 
           # Extract a clean error snippet (if log exists)
           ERROR_SNIPPET=""
+
           if [ "$STATUS" != "success" ] && [ -f playwright-output.log ]; then
           ERROR_SNIPPET=$(
             sed 's/\x1b\[[0-9;]*m//g' playwright-output.log \
             | awk '
-                /^Error: expect\(locator\)\./ { flag=1 }
+                /Error:/ { flag=1 }
                 flag { print }
-                flag && /\.spec\.js:[0-9]+:[0-9]+/ { exit }
+                flag && /\/tests\/.*\.spec\.js:[0-9]+:[0-9]+/ { exit }
               '
           )
           fi
@@ -142,6 +143,7 @@ jobs:
             📦 *Repo:* ${REPO_URL}
             🔗 *Run:* ${RUN_URL}
             🔗 *Report:* ${REPORT_URL}
+            EOF
           )
 
           # Let jq handle JSON escaping properly
