@@ -93,50 +93,58 @@ jobs:
     if: always()
 
     steps:
-    - name: Download Playwright logs
-      uses: actions/download-artifact@v4
-      with:
-        name: playwright-logs
+      - name: Download Playwright logs
+        uses: actions/download-artifact@v4
+        with:
+          name: playwright-logs
 
-    - name: Send result to Slack
-      env:
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-      run: |
-        STATUS="${{ needs.test.result }}"
-        REPO_URL="https://github.com/${GITHUB_REPOSITORY}"
-        RUN_URL="https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
-        REPORT_URL="${{ needs.deploy.outputs.vercel_url }}"
+      - name: Send result to Slack
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          STATUS="${{ needs.test.result }}"
+          REPO_URL="https://github.com/${GITHUB_REPOSITORY}"
+          RUN_URL="https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          REPORT_URL="${{ needs.deploy.outputs.vercel_url }}"
 
-        ERROR_SNIPPET=$(grep -E "✘|Error|failed|Timeout" playwright-output.log \
-          | head -n 6 \
-          | sed 's/"/'\''/g' \
-          | tr -cd '\11\12\15\40-\176')
+          # Extract a clean error snippet (if log exists)
+          ERROR_SNIPPET=""
+          if [ "$STATUS" != "success" ] && [ -f playwright-output.log ]; then
+            ERROR_SNIPPET=$(grep -E "✘|Error|failed|Timeout" playwright-output.log \
+              | head -n 10 \
+              | sed 's/\x1b\[[0-9;]*m//g' \
+              | tr -cd '\11\12\15\40-\176')
+          fi
 
+          if [ "$STATUS" = "success" ]; then
+            EMOJI="🟢"
+            BODY="All Playwright tests passed! 🎉"
+          else
+            EMOJI="🔴"
+            BODY="Some Playwright tests failed! 💥
 
-        if [ "$STATUS" = "success" ]; then
-          EMOJI="🟢"
-          MESSAGE="*All Playwright tests passed!* 🎉"
-        else
-          EMOJI="🔴"
-          MESSAGE="*Some Playwright tests failed!* 💥\\\`\`\`\${ERROR_SNIPPET}\\`\`\`"
-        fi
+            \`\`\`
+            ${ERROR_SNIPPET}
+            \`\`\`"
+                    fi
 
-        PAYLOAD=$(jq -n \
-          --arg emoji "$EMOJI" \
-          --arg message "$MESSAGE" \
-          --arg repo "$REPO_URL" \
-          --arg run "$RUN_URL" \
-          --arg report "$REPORT_URL" \
-          '{
-            text: ($emoji + " *Playwright Test Run Result*\n\n" +
-                  $message + "\n\n" +
-                  "📦 *Repo:* " + $repo + "\n" +
-                  "🔗 *Run:* " + $run + "\n" +
-                  "🔗 *Report:* " + $report)
-          }')
+          # Build Slack message with REAL newlines
+          TEXT=$(cat <<EOF
+            ${EMOJI} *Playwright Test Run Result*
 
-        curl -X POST \
-          -H "Content-type: application/json" \
-          --data "$PAYLOAD" \
-          "$SLACK_WEBHOOK_URL"
+            ${BODY}
+
+            📦 *Repo:* ${REPO_URL}
+            🔗 *Run:* ${RUN_URL}
+            🔗 *Report:* ${REPORT_URL}
+            EOF
+          )
+
+          # Let jq handle JSON escaping properly
+          jq -n --arg text "$TEXT" '{text: $text}' \
+            | curl -X POST \
+                -H "Content-type: application/json" \
+                --data @- \
+                "$SLACK_WEBHOOK_URL"
+
 
