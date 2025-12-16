@@ -24,6 +24,7 @@ test('Video Upload and Event Creation', async ({ page }, testInfo) => {
   await page.waitForLoadState('networkidle');
 
   await expect(page.getByText('アップロード一覧')).toBeVisible();
+  await page.getByText('アップロード一覧').click();
 
   await page.getByRole('link', { name: 'アップロード' }).click();
 
