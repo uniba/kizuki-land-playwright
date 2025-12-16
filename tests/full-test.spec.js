@@ -23,7 +23,7 @@ test('Video Upload and Event Creation', async ({ page }, testInfo) => {
   await page.goto('https://preview.kizuki.land/workshop-hosts');
   await page.waitForLoadState('networkidle');
 
-  await page.getByText('アップロード一覧').click();
+  await page.getByText('アップロード一覧 TESTING FAILED CASE').click();
 
   await page.getByRole('link', { name: 'アップロード' }).click();
 
