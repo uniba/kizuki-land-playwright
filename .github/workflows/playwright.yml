@@ -109,12 +109,19 @@ jobs:
 
           # Extract a clean error snippet (if log exists)
           ERROR_SNIPPET=""
+
           if [ "$STATUS" != "success" ] && [ -f playwright-output.log ]; then
-            ERROR_SNIPPET=$(grep -E "✘|Error|failed|Timeout" playwright-output.log \
-              | head -n 10 \
-              | sed 's/\x1b\[[0-9;]*m//g' \
-              | tr -cd '\11\12\15\40-\176')
+            ERROR_SNIPPET=$(
+              sed 's/\x1b\[[0-9;]*m//g' playwright-output.log \
+              | awk '
+                  /Call log:/ { flag=1 }
+                  flag { print }
+                  /^$/ && flag { exit }
+                ' \
+              | head -n 20
+            )
           fi
+
 
           if [ "$STATUS" = "success" ]; then
             EMOJI="🟢"
