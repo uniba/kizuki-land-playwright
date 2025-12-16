@@ -37,13 +37,11 @@ jobs:
           path: playwright-output.log
           retention-days: 7
       
-      - name: Upload Playwright logs
-        if: always()
-        uses: actions/upload-artifact@v4
+      - name: Download Playwright logs
+        uses: actions/download-artifact@v4
         with:
           name: playwright-logs
-          path: playwright-output.log
-          retention-days: 7
+
 
       # Upload the generated Playwright report as an artifact so downstream
       # jobs can download and act on it (deployment / long-term storage).
