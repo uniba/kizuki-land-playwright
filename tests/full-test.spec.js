@@ -25,7 +25,6 @@ test('Video Upload and Event Creation', async ({ page }, testInfo) => {
 
   await expect(page.getByText('アップロード一覧 TESTING FAILED CASE')).toBeVisible();
 
-
   await page.getByRole('link', { name: 'アップロード' }).click();
 
   await page.waitForURL('https://preview.kizuki.land/workshop-hosts/video-sources/create');

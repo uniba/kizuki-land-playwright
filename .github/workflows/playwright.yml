@@ -26,8 +26,11 @@ jobs:
 
       - name: Run Playwright tests
         run: |
+          set +e
           npx playwright test 2>&1 | tee playwright-output.log
-        continue-on-error: true
+          TEST_EXIT_CODE=${PIPESTATUS[0]}
+          echo "PLAYWRIGHT_EXIT_CODE=$TEST_EXIT_CODE" >> $GITHUB_ENV
+          exit $TEST_EXIT_CODE
 
       - name: Upload Playwright logs
         if: always()
