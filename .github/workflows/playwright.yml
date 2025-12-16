@@ -25,9 +25,11 @@ jobs:
         run: npx playwright install --with-deps
 
       - name: Run Playwright tests
+        env:
+          FORCE_COLOR: "0"
         run: |
           set +e
-          npx playwright test --reporter=html 2>&1 | tee playwright-output.log
+          npx playwright test 2>&1 | tee playwright-output.log
           TEST_EXIT_CODE=${PIPESTATUS[0]}
           echo "PLAYWRIGHT_EXIT_CODE=$TEST_EXIT_CODE" >> $GITHUB_ENV
           exit $TEST_EXIT_CODE
