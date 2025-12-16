@@ -111,15 +111,14 @@ jobs:
           ERROR_SNIPPET=""
 
           if [ "$STATUS" != "success" ] && [ -f playwright-output.log ]; then
-            ERROR_SNIPPET=$(
-              sed 's/\x1b\[[0-9;]*m//g' playwright-output.log \
-              | awk '
-                  /Call log:/ { flag=1 }
-                  flag { print }
-                  /^$/ && flag { exit }
-                ' \
-              | head -n 20
-            )
+          ERROR_SNIPPET=$(
+            sed 's/\x1b\[[0-9;]*m//g' playwright-output.log \
+            | awk '
+                /Call log:/ { flag=1 }
+                flag { print }
+                flag && /\/tests\/.*\.spec\.js:[0-9]+:[0-9]+/ { exit }
+              '
+          )
           fi
 
 
