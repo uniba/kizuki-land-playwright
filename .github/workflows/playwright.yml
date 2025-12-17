@@ -108,12 +108,12 @@ jobs:
           REPORT_URL="${{ needs.deploy.outputs.vercel_url }}"
 
           RETRIES=0
-          if [ -f playwright-report/results.json ]; then
+          if [ -f results.json ]; then
             RETRIES=$(jq '
               [
                 .suites[].specs[].tests[].results[].retry
               ] | max // 0
-            ' playwright-report/results.json)
+            ' results.json)
           fi
 
           # Extract a clean error snippet (if log exists)
