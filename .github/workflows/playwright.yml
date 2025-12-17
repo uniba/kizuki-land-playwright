@@ -109,7 +109,6 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: |
           STATUS="${{ needs.test.result }}"
-          REPO_URL="https://github.com/${GITHUB_REPOSITORY}"
           RUN_URL="https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
           REPORT_URL="${{ needs.deploy.outputs.vercel_url }}"
 
@@ -159,7 +158,6 @@ jobs:
 
           ${BODY}
 
-          📦 *Repo:* ${REPO_URL}
           🔗 *Run:* ${RUN_URL}
           🔗 *Report:* ${REPORT_URL}"
 
