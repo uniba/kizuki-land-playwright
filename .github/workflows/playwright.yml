@@ -118,7 +118,8 @@ jobs:
                   flag { print }
                   flag && /\.spec\.js:[0-9]+:[0-9]+/ { exit }
                 ' \
-              | sed '1{/^[[:space:]]*$/d; s/^[[:space:]]*//}'
+              | sed '1{/^[[:space:]]*$/d}' \
+              | sed '1s/^[[:space:]]*//'
             )
           fi
 
