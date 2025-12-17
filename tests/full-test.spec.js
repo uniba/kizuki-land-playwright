@@ -87,7 +87,7 @@ test('Video Upload and Event Creation', async ({ page }, testInfo) => {
   await page.goto('https://preview.kizuki.land/workshop-hosts');
   await page.waitForLoadState('networkidle');
 
-  // Create a new event steps
+  // Create new event steps
   await page.getByRole('link', { name: 'イベントを作成' }).click();
 
   await page.waitForURL('https://preview.kizuki.land/workshop-hosts/create');
