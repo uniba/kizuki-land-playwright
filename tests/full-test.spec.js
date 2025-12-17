@@ -17,7 +17,8 @@ test('Video Upload and Event Creation', async ({ page }, testInfo) => {
   await page.getByRole('button', { name: 'ログイン' }).click();
 
   // Wait for successful login
-  await page.waitForSelector('button.user__button--account', { state: 'visible' });
+  const accountButton = page.locator('button.user__button--account');
+  await expect(accountButton).toBeVisible();
 
   // Navigate to Workshop Hosts
   await page.goto('https://preview.kizuki.land/workshop-hosts');
@@ -28,6 +29,8 @@ test('Video Upload and Event Creation', async ({ page }, testInfo) => {
   await page.getByRole('link', { name: 'アップロード' }).click();
 
   await page.waitForURL('https://preview.kizuki.land/workshop-hosts/video-sources/create');
+  await expect(page).toHaveURL(/\/workshop-hosts$/);
+
 
   // Generate a unique title for the video upload
   const uniqueTitle = `${testInfo.project?.name || 'test'}-${Date.now()}`;
