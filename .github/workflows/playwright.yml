@@ -132,30 +132,26 @@ jobs:
 
           if [ "$STATUS" = "success" ]; then
             EMOJI="🟢"
-            BODY="All Playwright tests passed! 🎉 ($RETRIES retries)"
+            BODY="All Playwright tests passed! 🎉 (${RETRIES} retries)"
           else
             EMOJI="🔴"
-            BODY=$(cat <<EOF
-            Some Playwright tests failed! 💥
+            BODY="Some Playwright tests failed! 💥
 
-            \`\`\`
-            ${ERROR_SNIPPET}
-            \`\`\`
-            EOF
-            )
+          \`\`\`
+          ${ERROR_SNIPPET}
+          \`\`\`"
           fi
 
+
           # Build Slack message with REAL newlines
-          TEXT=$(cat <<EOF
-          *Playwright Test Run Result* ${EMOJI}
+          TEXT="*Playwright Test Run Result* ${EMOJI}
 
           ${BODY}
 
           📦 *Repo:* ${REPO_URL}
           🔗 *Run:* ${RUN_URL}
-          🔗 *Report:* ${REPORT_URL}
-          EOF
-          )
+          🔗 *Report:* ${REPORT_URL}"
+
 
           # Let jq handle JSON escaping properly
           jq -n --arg text "$TEXT" '{text: $text}' \
