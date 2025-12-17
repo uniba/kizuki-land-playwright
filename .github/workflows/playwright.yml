@@ -111,15 +111,15 @@ jobs:
           ERROR_SNIPPET=""
 
           if [ "$STATUS" != "success" ] && [ -f playwright-output.log ]; then
-          ERROR_SNIPPET=$(
-            sed 's/\x1b\[[0-9;]*m//g' playwright-output.log \
-            | awk '
-                /^ *Error: expect\(locator\)\./ { flag=1 }
-                flag { print }
-                flag && /\/tests\/.*\.spec\.js:[0-9]+:[0-9]+/ { exit }
-              ' \
-            | sed 's/^ \{2,4\}//'
-          )
+            ERROR_SNIPPET=$(
+              sed 's/\x1b\[[0-9;]*m//g' playwright-output.log \
+              | awk '
+                  /^ *Error: expect\(locator\)\./ { flag=1 }
+                  flag { print }
+                  flag && /\.spec\.js:[0-9]+:[0-9]+/ { exit }
+                ' \
+              | sed '1{/^[[:space:]]*$/d; s/^[[:space:]]*//}'
+            )
           fi
 
 
@@ -131,12 +131,12 @@ jobs:
             BODY="Some Playwright tests failed! 💥
             \`\`\`
             ${ERROR_SNIPPET}
-            \`\`\`"
+            \`\`\`
           fi
 
           # Build Slack message with REAL newlines
           TEXT=$(cat <<EOF
-            ${EMOJI} *Playwright Test Run Result*
+            *Playwright Test Run Result* ${EMOJI}
 
             ${BODY}
 
