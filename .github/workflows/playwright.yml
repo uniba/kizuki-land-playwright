@@ -117,10 +117,10 @@ jobs:
                   /Error:/ { flag=1 }
                   flag { print }
                   flag && /\/tests\/.*\.spec\.js:[0-9]+:[0-9]+/ { exit }
-                '
+                ' \
+              | sed 's/^[[:space:]]*//'
             )
           fi
-
 
           if [ "$STATUS" = "success" ]; then
             EMOJI="🟢"
@@ -130,7 +130,7 @@ jobs:
             BODY="Some Playwright tests failed! 💥
             \`\`\`
             ${ERROR_SNIPPET}
-            \`\`\`
+            \`\`\`"
           fi
 
           # Build Slack message with REAL newlines
