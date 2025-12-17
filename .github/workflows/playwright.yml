@@ -131,11 +131,11 @@ jobs:
           fi
 
           if [ "$STATUS" = "success" ]; then
-            EMOJI="🟢"
+            COLOR="#36a64f"
             BODY="All Playwright tests passed! 🎉 (${RETRIES} retries)"
           else
-            EMOJI="🔴"
-            BODY="Some Playwright tests failed! 💥
+            COLOR="#e01e5a"
+            BODY="Some Playwright tests failed! 💥 (${RETRIES} retries)
 
           \`\`\`
           ${ERROR_SNIPPET}
@@ -144,7 +144,7 @@ jobs:
 
 
           # Build Slack message with REAL newlines
-          TEXT="*Playwright Test Run Result* ${EMOJI}
+          TEXT="*Playwright Test Run Result*
 
           ${BODY}
 
@@ -153,9 +153,18 @@ jobs:
           🔗 *Report:* ${REPORT_URL}"
 
 
-          # Let jq handle JSON escaping properly
-          jq -n --arg text "$TEXT" '{text: $text}' \
-            | curl -X POST \
-                -H "Content-type: application/json" \
-                --data @- \
-                "$SLACK_WEBHOOK_URL"
+          jq -n \
+            --arg color "$COLOR" \
+            --arg text "$TEXT" \
+            '{
+              attachments: [
+                {
+                  color: $color,
+                  text: $text
+                }
+              ]
+            }' \
+          | curl -X POST \
+              -H "Content-type: application/json" \
+              --data @- \
+              "$SLACK_WEBHOOK_URL"
