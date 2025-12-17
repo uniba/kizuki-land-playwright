@@ -29,7 +29,7 @@ test('Video Upload and Event Creation', async ({ page }, testInfo) => {
   await page.getByRole('link', { name: 'アップロード' }).click();
 
   await page.waitForURL('https://preview.kizuki.land/workshop-hosts/video-sources/create');
-  await expect(page).toHaveURL(/\/workshop-hosts$/);
+  await expect(page).toHaveURL(/\/workshop-hosts\/video-sources\/create$/);
 
 
   // Generate a unique title for the video upload
@@ -91,7 +91,7 @@ test('Video Upload and Event Creation', async ({ page }, testInfo) => {
   await page.getByRole('link', { name: 'イベントを作成' }).click();
 
   await page.waitForURL('https://preview.kizuki.land/workshop-hosts/create');
-  await expect(page).toHaveURL(/\/workshop-hosts\/video-sources\/create$/);
+  await expect(page).toHaveURL(/\/workshop-hosts\/create$/);
 
   await page.getByPlaceholder('イベント名を入力してください').fill('テストタイトル');
   await page.getByPlaceholder('参加人数を決めてください').fill('10');
