@@ -147,14 +147,14 @@ jobs:
 
           # Build Slack message with REAL newlines
           TEXT=$(cat <<EOF
-            *Playwright Test Run Result* ${EMOJI}
+          *Playwright Test Run Result* ${EMOJI}
 
-            ${BODY}
+          ${BODY}
 
-            📦 *Repo:* ${REPO_URL}
-            🔗 *Run:* ${RUN_URL}
-            🔗 *Report:* ${REPORT_URL}
-            EOF
+          📦 *Repo:* ${REPO_URL}
+          🔗 *Run:* ${RUN_URL}
+          🔗 *Report:* ${REPORT_URL}
+          EOF
           )
 
           # Let jq handle JSON escaping properly
