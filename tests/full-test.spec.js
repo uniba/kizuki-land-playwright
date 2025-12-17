@@ -91,7 +91,7 @@ test('Video Upload and Event Creation', async ({ page }, testInfo) => {
   await page.getByRole('link', { name: 'イベントを作成' }).click();
 
   await page.waitForURL('https://preview.kizuki.land/workshop-hosts/create');
-  await expect(page).toHaveURL('https://preview.kizuki.land/workshop-hosts/create');
+  await expect(page).toHaveURL(/\/workshop-hosts\/video-sources\/create$/);
 
   await page.getByPlaceholder('イベント名を入力してください').fill('テストタイトル');
   await page.getByPlaceholder('参加人数を決めてください').fill('10');
