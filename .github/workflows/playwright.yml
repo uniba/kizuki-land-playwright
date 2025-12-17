@@ -114,6 +114,10 @@ jobs:
                 .suites[].specs[].tests[].results[].retry
               ] | max // 0
             ' results.json)
+            echo "Max retries found: $RETRIES"
+          else
+            echo "results.json not found. Available files:"
+            ls -la
           fi
 
           # Extract a clean error snippet (if log exists)
