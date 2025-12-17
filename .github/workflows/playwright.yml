@@ -98,6 +98,12 @@ jobs:
         with:
           name: playwright-logs
 
+      - name: Download Playwright report artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: playwright-report
+          path: ./playwright-report
+
       - name: Send result to Slack
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
@@ -108,16 +114,17 @@ jobs:
           REPORT_URL="${{ needs.deploy.outputs.vercel_url }}"
 
           RETRIES=0
-          if [ -f results.json ]; then
+          if [ -f ./playwright-report/results.json ]; then
             RETRIES=$(jq '
               [
                 .suites[].specs[].tests[].results[].retry
               ] | max // 0
-            ' results.json)
+            ' ./playwright-report/results.json)
             echo "Max retries found: $RETRIES"
           else
             echo "results.json not found. Available files:"
-            ls -la
+            find . -name "results.json" -o -name "*.json" | head -20
+            ls -la ./playwright-report || echo "playwright-report folder not found"
           fi
 
           # Extract a clean error snippet (if log exists)
