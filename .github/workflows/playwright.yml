@@ -107,6 +107,15 @@ jobs:
           RUN_URL="https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
           REPORT_URL="${{ needs.deploy.outputs.vercel_url }}"
 
+          RETRIES=0
+          if [ -f playwright-report/results.json ]; then
+            RETRIES=$(jq '
+              [
+                .suites[].specs[].tests[].results[].retry
+              ] | max // 0
+            ' playwright-report/results.json)
+          fi
+
           # Extract a clean error snippet (if log exists)
           ERROR_SNIPPET=""
 
@@ -118,19 +127,22 @@ jobs:
                   flag { print }
                   flag && /\/tests\/.*\.spec\.js:[0-9]+:[0-9]+/ { exit }
                 ' \
-              | sed '1d;/./,$!d' \
             )
           fi
 
           if [ "$STATUS" = "success" ]; then
             EMOJI="🟢"
-            BODY="All Playwright tests passed! 🎉"
+            BODY="All Playwright tests passed! 🎉 ($RETRIES retries)"
           else
             EMOJI="🔴"
-            BODY="Some Playwright tests failed! 💥
+            BODY=$(cat <<EOF
+            Some Playwright tests failed! 💥
+
             \`\`\`
             ${ERROR_SNIPPET}
-            \`\`\`"
+            \`\`\`
+            EOF
+            )
           fi
 
           # Build Slack message with REAL newlines
@@ -142,6 +154,7 @@ jobs:
             📦 *Repo:* ${REPO_URL}
             🔗 *Run:* ${RUN_URL}
             🔗 *Report:* ${REPORT_URL}
+            EOF
           )
 
           # Let jq handle JSON escaping properly
