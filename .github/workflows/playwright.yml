@@ -114,11 +114,11 @@ jobs:
           ERROR_SNIPPET=$(
             sed 's/\x1b\[[0-9;]*m//g' playwright-output.log \
             | awk '
-                /Error:/ { flag=1 }
+                /^ *Error: expect\(locator\)\./ { flag=1 }
                 flag { print }
                 flag && /\/tests\/.*\.spec\.js:[0-9]+:[0-9]+/ { exit }
               ' \
-              | sed 's/^ \{2,4\}//'
+            | sed 's/^ \{2,4\}//'
           )
           fi
 
