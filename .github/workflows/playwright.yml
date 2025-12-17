@@ -117,8 +117,7 @@ jobs:
                   /^ *Error: expect\(locator\)\./ { flag=1 }
                   flag { print }
                   flag && /\.spec\.js:[0-9]+:[0-9]+/ { exit }
-                ' \
-              | sed 's/^[[:space:]]*//'
+                '
             )
           fi
 
