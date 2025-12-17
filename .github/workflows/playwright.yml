@@ -112,12 +112,19 @@ jobs:
 
           if [ "$STATUS" != "success" ] && [ -f playwright-output.log ]; then
             ERROR_SNIPPET=$(
+              # 1. Remove ANSI color codes
               sed 's/\x1b\[[0-9;]*m//g' playwright-output.log \
               | awk '
-                  /^ *Error: expect\(locator\)\./ { flag=1 }
-                  flag { print }
-                  flag && /\.spec\.js:[0-9]+:[0-9]+/ { exit }
-                '
+                  # Start when Playwright prints the expect() failure
+                  /^ *Error: expect\(locator\)\./ { printing=1 }
+
+                  # Print once started
+                  printing { print }
+
+                  # Stop at stack trace line
+                  printing && /\.spec\.js:[0-9]+:[0-9]+/ { exit }
+                ' \
+              | sed 's/^[[:space:]]*//'
             )
           fi
 
