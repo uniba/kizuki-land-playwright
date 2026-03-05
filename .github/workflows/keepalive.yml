@@ -2,23 +2,29 @@ name: Keep-alive Heartbeat
 
 on:
   schedule:
-    - cron: '0 0 1 * *' # Runs at midnight on the 1st of every month
+    - cron: '0 0 1 * *' 
   workflow_dispatch:
 
 jobs:
   heartbeat:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          # Use the PAT to bypass Org restrictions
-          token: ${{ secrets.PAT }} 
+          # Use your Personal Access Token here
+          token: ${{ secrets.MY_PERSONAL_TOKEN }}
 
-      - name: Keepalive Workflow
-        uses: gautamkrishnar/keepalive-workflow@v2
-        with:
-          # Use the PAT here as well to ensure the commit is "human"
-          gh_token: ${{ secrets.PAT }}
+      - name: Manual Custom Heartbeat
+        run: |
+          # Configure Git with your info
+          git config --global user.name "GitHub Action Heartbeat"
+          git config --global user.email "actions@github.com"
+          
+          # Create or update a dummy file to reset the 60-day timer
+          echo "Last heartbeat: $(date)" > heartbeat.txt
+          
+          # Stage, commit, and push
+          git add heartbeat.txt
+          git commit -m "chore: automated heartbeat to keep actions alive [skip ci]"
+          git push
