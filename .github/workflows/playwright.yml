@@ -163,20 +163,22 @@ jobs:
           🔗 *Report:* ${REPORT_URL}"
 
 
-          jq -n \
-            --arg channel "$SLACK_CHANNEL_ID" \
-            --arg color "$COLOR" \
-            --arg text "$TEXT" \
-            '{
-              attachments: [
-                {
-                  color: $color,
-                  text: $text
-                }
-              ]
-            }' \
-          | curl -X POST \
-              -H "Content-type: application/json" \
-              -H "Authorization: Bearer $SLACK_BOT_TOKEN" \
-              -d @- \
-              "https://slack.com/api/chat.postMessage"
+          PAYLOAD=$(jq -n \
+                      --arg channel "$SLACK_CHANNEL_ID" \
+                      --arg color "$COLOR" \
+                      --arg text "$TEXT" \
+                      '{
+                        channel: $channel,
+                        attachments: [
+                          {
+                            color: $color,
+                            text: $text
+                          }
+                        ]
+                      }')
+
+          curl -X POST \
+            -H "Content-type: application/json; charset=utf-8" \
+            -H "Authorization: Bearer $SLACK_BOT_TOKEN" \
+            -d "$PAYLOAD" \
+            "https://slack.com/api/chat.postMessage"
