@@ -3,7 +3,7 @@ name: Keep-alive Heartbeat
 on:
   schedule:
     - cron: '0 0 1 * *' # Runs at midnight on the 1st of every month
-    workflow_dispatch:
+  workflow_dispatch:
 
 jobs:
   heartbeat:
