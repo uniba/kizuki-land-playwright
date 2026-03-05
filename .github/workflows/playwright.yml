@@ -106,7 +106,7 @@ jobs:
 
       - name: Send result to Slack
         env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           SLACK_CHANNEL_ID: "C0AK8DWM1GQ"
         run: |
           STATUS="${{ needs.test.result }}"
