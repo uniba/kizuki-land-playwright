@@ -1,0 +1,15 @@
+name: Keep-alive Heartbeat
+
+on:
+  schedule:
+    - cron: '0 0 1 * *' # Runs at midnight on the 1st of every month
+
+jobs:
+  heartbeat:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Keepalive Workflow
+        uses: gautamkrishnar/keepalive-workflow@v2 # A popular community action for this exact purpose

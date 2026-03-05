@@ -106,7 +106,8 @@ jobs:
 
       - name: Send result to Slack
         env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_CHANNEL_ID: "C0AK8DWM1GQ"
         run: |
           STATUS="${{ needs.test.result }}"
           RUN_URL="https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
@@ -163,6 +164,7 @@ jobs:
 
 
           jq -n \
+            --arg channel "$SLACK_CHANNEL_ID" \
             --arg color "$COLOR" \
             --arg text "$TEXT" \
             '{
@@ -175,5 +177,6 @@ jobs:
             }' \
           | curl -X POST \
               -H "Content-type: application/json" \
-              --data @- \
-              "$SLACK_WEBHOOK_URL"
+              -H "Authorization: Bearer $SLACK_BOT_TOKEN" \
+              -d @- \
+              "https://slack.com/api/chat.postMessage"
