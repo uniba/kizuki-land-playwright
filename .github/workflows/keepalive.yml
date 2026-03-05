@@ -15,10 +15,10 @@ jobs:
         uses: actions/checkout@v4
         with:
           # Use the PAT to bypass Org restrictions
-          token: ${{ secrets.MY_PERSONAL_TOKEN }} 
+          token: ${{ secrets.PAT }} 
 
       - name: Keepalive Workflow
         uses: gautamkrishnar/keepalive-workflow@v2
         with:
           # Use the PAT here as well to ensure the commit is "human"
-          gh_token: ${{ secrets.MY_PERSONAL_TOKEN }}
+          gh_token: ${{ secrets.PAT }}
