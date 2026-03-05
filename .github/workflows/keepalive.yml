@@ -12,8 +12,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          # Use your Personal Access Token here
-          token: ${{ secrets.MY_PERSONAL_TOKEN }}
+          token: ${{ secrets.PAT }}
 
       - name: Manual Custom Heartbeat
         run: |
