@@ -6,7 +6,7 @@ const password = process.env.KIZUKI_PASSWORD;
 if (!email || !password) throw new Error('Set KIZUKI_EMAIL and KIZUKI_PASSWORD as env vars');
 
 test('Video Upload and Event Creation', async ({ page }, testInfo) => {
-  test.setTimeout(15 * 60 * 1000); // 15 minutes
+  test.setTimeout(1 * 60 * 1000); // 
 
   // Login Steps
   await page.goto('https://preview.kizuki.land/sign-in');
