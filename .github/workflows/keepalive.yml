@@ -1,33 +1,29 @@
-name: Keep-alive Heartbeat
+name: Keep-alive Heartbeat (API Version)
 
 on:
   schedule:
-    - cron: '0 0 1 * *' 
+    - cron: '0 0 1 * *'
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   heartbeat:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.PAT }}
-          persist-credentials: false
-
-      - name: Manual Custom Heartbeat
+      - name: Update Repo Metadata
         env:
-        # Map your secret to an environment variable for the script
-          MY_TOKEN: ${{ secrets.PAT }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
         run: |
-          git config --global user.name "GitHub Action Heartbeat 2"
-          git config --global user.email "actions@github.com"
-        
-          echo "Last heartbeat: $(date)" > heartbeat.txt
-        
-          git add heartbeat.txt
-          git commit -m "chore: automated heartbeat to keep actions alive [skip ci]" || echo "No changes to commit"
-        
-          # Use the token in the remote URL for the push
-          # Change the last line of your script to this:
-          git push https://x-access-token:${MY_TOKEN}@github.com/${{ github.repository }}.git HEAD:main
+          echo "Updating repository metadata via API to reset dormancy timer..."
+          
+          # We get the current description
+          DESC=$(gh api repos/$GH_REPO -q '.description')
+          
+          # We 'update' it to the same thing (or add a tiny timestamp)
+          # This counts as a 'write' event to the repository metadata
+          gh api -X PATCH repos/$GH_REPO -f description="$DESC "
+          
+          echo "Successfully 'poked' the repository via API."
