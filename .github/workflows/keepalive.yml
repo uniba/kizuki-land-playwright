@@ -1,4 +1,4 @@
-name: Keep-alive Heartbeat (API Version)
+name: Keep-alive Heartbeat
 
 on:
   schedule:
@@ -12,18 +12,25 @@ jobs:
   heartbeat:
     runs-on: ubuntu-latest
     steps:
-      - name: Update Repo Metadata
+      - name: Create and Delete Temp Branch
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
         run: |
-          echo "Updating repository metadata via API to reset dormancy timer..."
+          # 1. Get the SHA of the latest commit on main
+          SHA=$(gh api repos/$GH_REPO/git/ref/heads/main -q '.object.sha')
           
-          # We get the current description
-          DESC=$(gh api repos/$GH_REPO -q '.description')
+          echo "Creating temporary heartbeat branch..."
+          # 2. Create a new branch called 'heartbeat-tmp'
+          gh api -X POST repos/$GH_REPO/git/refs \
+            -f ref='refs/heads/heartbeat-tmp' \
+            -f sha="$SHA"
           
-          # We 'update' it to the same thing (or add a tiny timestamp)
-          # This counts as a 'write' event to the repository metadata
-          gh api -X PATCH repos/$GH_REPO -f description="$DESC "
+          echo "Branch created. Resetting timer..."
+          sleep 5 
           
-          echo "Successfully 'poked' the repository via API."
+          echo "Deleting temporary heartbeat branch..."
+          # 3. Delete the branch
+          gh api -X DELETE repos/$GH_REPO/git/refs/heads/heartbeat-tmp
+          
+          echo "Dormancy timer reset successfully!"
