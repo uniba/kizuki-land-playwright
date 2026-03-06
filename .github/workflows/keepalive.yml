@@ -15,15 +15,17 @@ jobs:
           token: ${{ secrets.PAT }}
 
       - name: Manual Custom Heartbeat
+        env:
+        # Map your secret to an environment variable for the script
+          MY_TOKEN: ${{ secrets.PAT }}
         run: |
-          # Configure Git with your info
           git config --global user.name "GitHub Action Heartbeat"
           git config --global user.email "actions@github.com"
-          
-          # Create or update a dummy file to reset the 60-day timer
+        
           echo "Last heartbeat: $(date)" > heartbeat.txt
-          
-          # Stage, commit, and push
+        
           git add heartbeat.txt
-          git commit -m "chore: automated heartbeat to keep actions alive [skip ci]"
-          git push
+          git commit -m "chore: automated heartbeat to keep actions alive [skip ci]" || echo "No changes to commit"
+        
+          # Use the token in the remote URL for the push
+          git push https://x-access-token:${MY_TOKEN}@github.com/${{ github.repository }}.git HEAD:main
