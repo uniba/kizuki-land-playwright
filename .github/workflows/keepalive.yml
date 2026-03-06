@@ -13,6 +13,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.PAT }}
+          persist-credentials: false
 
       - name: Manual Custom Heartbeat
         env:
@@ -29,4 +30,4 @@ jobs:
         
           # Use the token in the remote URL for the push
           # Change the last line of your script to this:
-          git push https://x-access-token:${MY_TOKEN}@github.com/${{ github.repository }}.git HEAD:heartbeat-branch
+          git push https://x-access-token:${MY_TOKEN}@github.com/${{ github.repository }}.git HEAD:main
