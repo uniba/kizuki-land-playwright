@@ -19,7 +19,7 @@ jobs:
         # Map your secret to an environment variable for the script
           MY_TOKEN: ${{ secrets.PAT }}
         run: |
-          git config --global user.name "GitHub Action Heartbeat 1"
+          git config --global user.name "GitHub Action Heartbeat 2"
           git config --global user.email "actions@github.com"
         
           echo "Last heartbeat: $(date)" > heartbeat.txt
@@ -28,4 +28,5 @@ jobs:
           git commit -m "chore: automated heartbeat to keep actions alive [skip ci]" || echo "No changes to commit"
         
           # Use the token in the remote URL for the push
-          git push https://x-access-token:${MY_TOKEN}@github.com/${{ github.repository }}.git HEAD:main
+          # Change the last line of your script to this:
+          git push https://x-access-token:${MY_TOKEN}@github.com/${{ github.repository }}.git HEAD:heartbeat-branch
